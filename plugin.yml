@@ -1,0 +1,27 @@
+name: SkillMaster
+version: 1.0.0
+authors: [Yukino_Akira]
+main: com.akira.skillmaster.SkillMaster
+api-version: 1.20
+
+commands:
+  perk:
+    description: "Allow players to view their own Perks."
+    permission: skillmaster.user
+  perkadmin:
+    description: "Full access to Perk Administration Commands."
+    permission: skillmaster.admin
+  skill:
+    description: "Allow players to view their own Skills."
+    permission: skillmaster.user
+  skilladmin:
+    description: "Full access to Skill Administration Commands."
+    permission: skillmaster.admin
+
+permissions:
+  skillmaster.user:
+    description: "Basic access for normal players."
+    default: true
+  skillmaster.admin:
+    description: "Full access for administrators."
+    default: op
