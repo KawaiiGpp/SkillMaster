@@ -1,16 +1,22 @@
 package com.akira.skillmaster.core.skill;
 
 import com.akira.skillmaster.config.instances.ConfigSettings;
+import com.akira.skillmaster.core.SkillProfile;
+import com.akira.skillmaster.event.SkillExpGainedEvent;
+import com.akira.skillmaster.event.SkillLevelledUpEvent;
 import com.akira.skillmaster.manager.ConfigManager;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.Bukkit;
 
 public class SkillEntry {
     private static final ConfigSettings settings = (ConfigSettings) ConfigManager.getInstance().fromString("settings");
 
+    private final SkillProfile profile;
+
     private int level;
     private double exp;
 
-    public SkillEntry(int level, double exp) {
+    public SkillEntry(SkillProfile profile, int level, double exp) {
         Validate.isTrue(level > 0, "Level must be greater than 0 while creating Skill Entry.");
         Validate.isTrue(exp >= 0, "Exp cannot be lower than 0 while creating Skill Entry.");
 
@@ -23,6 +29,8 @@ public class SkillEntry {
             this.level = maxLevel;
             this.exp = 0;
         }
+
+        this.profile = profile;
     }
 
     public int getLevel() {
@@ -44,6 +52,10 @@ public class SkillEntry {
         Validate.isTrue(exp >= 0, "Exp cannot be lower than 0.");
 
         this.exp = exp;
+    }
+
+    public SkillProfile getProfile() {
+        return profile;
     }
 
     public boolean isLevelMaxed() {
@@ -68,13 +80,19 @@ public class SkillEntry {
             double required = this.getExpRequiredToLevelup();
             if (this.exp >= required) {
                 exp -= required;
-                level++;
+                Bukkit.getPluginManager().callEvent(new SkillLevelledUpEvent(profile, level, ++level));
             } else break;
         }
     }
 
     public void gainExp(double exp) {
-        this.setExp(this.getExp() + exp);
+        double expGained = exp * (settings.getExpBoosterMultiplierPerLevelup() * level);
+        SkillExpGainedEvent event = new SkillExpGainedEvent(profile, expGained);
+
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+
+        this.setExp(this.getExp() + event.getExpAmount());
         this.performLevelup();
     }
 

@@ -1,15 +1,19 @@
 package com.akira.skillmaster.core.perk;
 
+import com.akira.skillmaster.core.SkillProfile;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PerkData {
+    private final SkillProfile profile;
     private final Map<Perk, Double> map;
 
-    public PerkData() {
+    public PerkData(SkillProfile profile) {
         this.map = new HashMap<>();
+        this.profile = profile;
+
         this.initialize();
     }
 
@@ -22,6 +26,10 @@ public class PerkData {
     public double get(Perk perk) {
         this.checkPerkType(perk);
         return this.map.get(perk);
+    }
+
+    public SkillProfile getProfile() {
+        return profile;
     }
 
     private void initialize() {

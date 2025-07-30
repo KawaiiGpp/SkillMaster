@@ -5,7 +5,6 @@ import com.akira.skillmaster.core.perk.Perk;
 import com.akira.skillmaster.core.perk.PerkData;
 import com.akira.skillmaster.core.skill.Skill;
 import com.akira.skillmaster.core.skill.SkillData;
-import com.akira.skillmaster.core.skill.SkillEntry;
 import com.akira.skillmaster.manager.ConfigManager;
 
 import java.util.Set;
@@ -18,8 +17,8 @@ public class SkillProfile {
 
     public SkillProfile(UUID uniqueId) {
         this.uniqueId = uniqueId;
-        this.skillData = new SkillData();
-        this.perkData = new PerkData();
+        this.skillData = new SkillData(this);
+        this.perkData = new PerkData(this);
 
         load();
     }
@@ -31,10 +30,10 @@ public class SkillProfile {
         Set<Perk> perkSet = Perk.getManager().copySet();
 
         if (config.hasAnyData(uniqueId)) {
-            skillSet.forEach(s -> skillData.setEntry(s, config.getSkillEntry(uniqueId, s)));
+            skillSet.forEach(s -> config.loadSkillEntry(uniqueId, s, skillData.getEntry(s)));
             perkSet.forEach(p -> perkData.set(p, config.getPerkValue(uniqueId, p)));
         } else {
-            skillSet.forEach(s -> skillData.setEntry(s, new SkillEntry(1, 0)));
+            skillSet.forEach(s -> skillData.setEntry(s, 1, 0));
             perkSet.forEach(p -> perkData.set(p, 0));
         }
     }

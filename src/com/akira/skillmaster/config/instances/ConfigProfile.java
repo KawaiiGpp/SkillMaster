@@ -20,10 +20,9 @@ public class ConfigProfile extends ConfigFile {
         config.set(this.toPerkPath(uniqueId, perk), value);
     }
 
-    public SkillEntry getSkillEntry(UUID uniqueId, Skill skill) {
-        int level = this.config.getInt(this.toSkillPath(uniqueId, skill, "level"));
-        double exp = this.config.getDouble(this.toSkillPath(uniqueId, skill, "exp"));
-        return new SkillEntry(level, exp);
+    public void loadSkillEntry(UUID uniqueId, Skill skill, SkillEntry entry) {
+        entry.setLevel(this.config.getInt(this.toSkillPath(uniqueId, skill, "level")));
+        entry.setExp(this.config.getDouble(this.toSkillPath(uniqueId, skill, "exp")));
     }
 
     public void setSkillEntry(UUID uniqueId, Skill skill, SkillEntry entry) {
