@@ -3,7 +3,6 @@ package com.akira.skillmaster.base;
 import com.akira.skillmaster.utils.NumberUtils;
 import org.bukkit.ChatColor;
 
-import java.text.DecimalFormat;
 import java.util.Objects;
 
 public abstract class AttributeType {
@@ -48,6 +47,12 @@ public abstract class AttributeType {
     }
 
     public final String toStatLine(double value, boolean applyColor, boolean applyIcon) {
+        return toStatLine(value, applyColor, applyIcon, true);
+    }
+
+    public final String toStatLine(double value, boolean applyColor, boolean applyIcon, boolean simplify) {
+        if (simplify) value = NumberUtils.simplify(value);
+
         String valueAsString = NumberUtils.toSignedNumber(value);
         StringBuilder builder = new StringBuilder();
 
@@ -58,15 +63,6 @@ public abstract class AttributeType {
         if (applyIcon) builder.append(icon);
 
         return builder.toString();
-    }
-
-    public final String toStatLine(double value, boolean applyColor, boolean applyIcon, boolean applyFormatter) {
-        if (applyFormatter) {
-            DecimalFormat formatter = NumberUtils.getFormatter();
-            double formatted = Double.parseDouble(formatter.format(value));
-
-            return this.toStatLine(formatted, applyColor, applyIcon);
-        } else return this.toStatLine(value, applyColor, applyIcon);
     }
 
     public final String getDescription() {

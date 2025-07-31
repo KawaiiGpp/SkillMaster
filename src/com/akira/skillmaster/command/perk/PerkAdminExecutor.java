@@ -55,8 +55,7 @@ public class PerkAdminExecutor extends ImprovedExecutor {
 
         private void sendPerkDetails(CommandSender recipient, PerkData data) {
             for (Perk perk : Perk.getManager().copySet()) {
-                double value = data.get(perk);
-                recipient.sendMessage("§8-> §7" + perk.toStatLine(value, true, true));
+                recipient.sendMessage("§8-> §7" + perk.toStatLine(data.get(perk), true, true));
             }
         }
 

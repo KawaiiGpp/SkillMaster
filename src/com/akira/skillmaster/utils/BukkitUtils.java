@@ -27,7 +27,12 @@ public class BukkitUtils {
     }
 
     public static void debug(Object object) {
+        debug(object, true);
+    }
+
+    public static void debug(Object object, boolean bc) {
         msg(ChatColor.AQUA, "[DEBUG] " + object);
+        if (bc) Bukkit.broadcastMessage(object.toString());
     }
 
     public static void msg(ChatColor color, String message) {

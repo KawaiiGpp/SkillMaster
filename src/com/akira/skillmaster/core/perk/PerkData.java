@@ -28,6 +28,13 @@ public class PerkData {
         return this.map.get(perk);
     }
 
+    public void gain(Perk perk, double value) {
+        this.checkPerkType(perk);
+        Validate.isTrue(value > 0, "Perk value gained must be greater than 0.");
+
+        this.set(perk, this.get(perk) + value);
+    }
+
     public SkillProfile getProfile() {
         return profile;
     }

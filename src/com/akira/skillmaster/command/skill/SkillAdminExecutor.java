@@ -63,8 +63,8 @@ public class SkillAdminExecutor extends ImprovedExecutor {
                 ChatColor color = skill.getColor();
                 SkillEntry entry = profile.getSkillData().getEntry(skill);
 
-                double exp = entry.getExp();
-                double max = entry.getExpRequiredToLevelup();
+                double exp = NumberUtils.simplify(entry.getExp());
+                double max = NumberUtils.simplify(entry.getExpRequiredToLevelup());
 
                 String percent;
                 if (entry.isLevelMaxed()) percent = "已满级";

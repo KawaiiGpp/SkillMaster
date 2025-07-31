@@ -2,6 +2,7 @@ package com.akira.skillmaster.core.skill;
 
 import com.akira.skillmaster.config.instances.ConfigSettings;
 import com.akira.skillmaster.core.SkillProfile;
+import com.akira.skillmaster.core.perk.PerkData;
 import com.akira.skillmaster.event.SkillExpGainedEvent;
 import com.akira.skillmaster.event.SkillLevelledUpEvent;
 import com.akira.skillmaster.manager.ConfigManager;
@@ -11,12 +12,13 @@ import org.bukkit.Bukkit;
 public class SkillEntry {
     private static final ConfigSettings settings = (ConfigSettings) ConfigManager.getInstance().fromString("settings");
 
+    private final Skill skillType;
     private final SkillProfile profile;
 
     private int level;
     private double exp;
 
-    public SkillEntry(SkillProfile profile, int level, double exp) {
+    public SkillEntry(SkillProfile profile, Skill skillType, int level, double exp) {
         Validate.isTrue(level > 0, "Level must be greater than 0 while creating Skill Entry.");
         Validate.isTrue(exp >= 0, "Exp cannot be lower than 0 while creating Skill Entry.");
 
@@ -31,6 +33,7 @@ public class SkillEntry {
         }
 
         this.profile = profile;
+        this.skillType = skillType;
     }
 
     public int getLevel() {
@@ -58,6 +61,10 @@ public class SkillEntry {
         return profile;
     }
 
+    public Skill getSkillType() {
+        return skillType;
+    }
+
     public boolean isLevelMaxed() {
         return level == this.getMaxLevel();
     }
@@ -70,7 +77,19 @@ public class SkillEntry {
         return calculateExpRequiredToLevelup(this.level);
     }
 
-    public void performLevelup() {
+    public void gainExp(double exp) {
+        double multiplier = 1 + (settings.getExpBoosterMultiplierPerLevelup() * level);
+        double expGained = exp * multiplier;
+        SkillExpGainedEvent event = new SkillExpGainedEvent(profile, expGained);
+
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+
+        this.setExp(this.getExp() + event.getExpAmount());
+        this.performLevelup();
+    }
+
+    private void performLevelup() {
         while (true) {
             if (this.isLevelMaxed()) {
                 this.exp = 0;
@@ -80,20 +99,20 @@ public class SkillEntry {
             double required = this.getExpRequiredToLevelup();
             if (this.exp >= required) {
                 exp -= required;
-                Bukkit.getPluginManager().callEvent(new SkillLevelledUpEvent(profile, level, ++level));
+                level++;
+
+                Bukkit.getPluginManager().callEvent(new SkillLevelledUpEvent(profile, level - 1, level));
+                this.onLevellingReward();
             } else break;
         }
     }
 
-    public void gainExp(double exp) {
-        double expGained = exp * (settings.getExpBoosterMultiplierPerLevelup() * level);
-        SkillExpGainedEvent event = new SkillExpGainedEvent(profile, expGained);
+    private void onLevellingReward() {
+        double base = settings.getPerkBaseBonusOnLevelup();
+        double multiplier = settings.getPerkMultiplierForLevelBonus() * level;
 
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return;
-
-        this.setExp(this.getExp() + event.getExpAmount());
-        this.performLevelup();
+        PerkData perkData = profile.getPerkData();
+        perkData.gain(skillType.getRewardType(), base * multiplier);
     }
 
     public static double calculateExpRequiredToLevelup(int level) {

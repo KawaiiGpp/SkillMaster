@@ -8,6 +8,7 @@ import com.akira.skillmaster.config.instances.ConfigProfile;
 import com.akira.skillmaster.config.instances.ConfigSettings;
 import com.akira.skillmaster.listener.PerkListener;
 import com.akira.skillmaster.listener.PlayerRegistrationListener;
+import com.akira.skillmaster.listener.SkillListener;
 import com.akira.skillmaster.manager.ConfigManager;
 import com.akira.skillmaster.utils.BukkitUtils;
 import org.apache.commons.lang3.Validate;
@@ -41,6 +42,7 @@ public class SkillMaster extends JavaPlugin {
 
         BukkitUtils.registerListener(new PlayerRegistrationListener());
         BukkitUtils.registerListener(new PerkListener());
+        BukkitUtils.registerListener(new SkillListener());
 
         BukkitUtils.registerCommand(new PerkExecutor());
         BukkitUtils.registerCommand(new PerkAdminExecutor());

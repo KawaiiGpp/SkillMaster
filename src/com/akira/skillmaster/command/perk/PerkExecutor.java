@@ -32,7 +32,7 @@ public class PerkExecutor extends ImprovedExecutor {
             for (Perk perk : Perk.getManager().copySet()) {
                 double value = sp.getPerkData().get(perk);
 
-                String formattedValue = perk.toStatLine(value, true, true, true);
+                String formattedValue = perk.toStatLine(value, true, true);
                 String desc = perk.getDescription();
 
                 player.sendMessage("§8-> §7" + formattedValue + " §8(" + desc + ")");

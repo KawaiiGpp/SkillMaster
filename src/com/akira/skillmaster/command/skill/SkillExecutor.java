@@ -12,8 +12,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.text.DecimalFormat;
-
 public class SkillExecutor extends ImprovedExecutor {
     public SkillExecutor() {
         super("skill");
@@ -38,16 +36,13 @@ public class SkillExecutor extends ImprovedExecutor {
                 ChatColor color = skill.getColor();
                 SkillEntry entry = data.getEntry(skill);
 
-                double exp = entry.getExp();
-                double max = entry.getExpRequiredToLevelup();
-
-                DecimalFormat formatter = NumberUtils.getFormatter();
+                double exp = NumberUtils.simplify(entry.getExp());
+                double max = NumberUtils.simplify(entry.getExpRequiredToLevelup());
                 String percent = entry.isLevelMaxed() ? "已满级" : NumberUtils.toPercent(exp, max);
-                String expInfo = formatter.format(exp) + "/" + formatter.format(max);
 
                 sender.sendMessage("技能 " + skill.getDisplayName(true, true));
                 sender.sendMessage("§8- §7当前等级: " + color + "Lvl " + entry.getLevel());
-                sender.sendMessage("§8- §7经验值: " + color + expInfo + " §7§o" + percent);
+                sender.sendMessage("§8- §7经验值: " + color + exp + "/" + max + " §7§o" + percent);
 
                 sender.sendMessage("§8§m-----------------------");
             }

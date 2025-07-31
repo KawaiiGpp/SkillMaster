@@ -35,7 +35,7 @@ public class SkillData {
     }
 
     private void initialize() {
-        Skill.getManager().copySet().forEach(s -> map.put(s, new SkillEntry(profile, 1, 0)));
+        Skill.getManager().copySet().forEach(s -> map.put(s, new SkillEntry(profile, s, 1, 0)));
     }
 
     private void checkSkillType(Skill skill) {
