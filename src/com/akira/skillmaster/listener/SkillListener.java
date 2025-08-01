@@ -1,5 +1,6 @@
 package com.akira.skillmaster.listener;
 
+import com.akira.skillmaster.SkillMaster;
 import com.akira.skillmaster.config.instances.ConfigSettings;
 import com.akira.skillmaster.core.SkillPlayer;
 import com.akira.skillmaster.core.skill.Skill;
@@ -9,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
@@ -16,17 +18,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.*;
 
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class SkillListener implements Listener {
     private final ConfigSettings settings = (ConfigSettings) ConfigManager.getInstance().fromString("settings");
+    private final String foragingBlockIndentifier = "skillmaster.built_foraging_block";
 
     @EventHandler
     public void onCombat(EntityDeathEvent e) {
@@ -82,6 +88,38 @@ public class SkillListener implements Listener {
 
         double exp = settings.getMiningExpAmount() * this.getMultiplierForOreRarity(ore);
         this.gainMiningExp(player, exp);
+    }
+
+    @EventHandler
+    public void onForaging(BlockPlaceEvent e) {
+        Block block = e.getBlock();
+        if (!this.checkForagingBlock(block)) return;
+        FixedMetadataValue value = new FixedMetadataValue(SkillMaster.getInstance(), true);
+        block.setMetadata(foragingBlockIndentifier, value);
+    }
+
+    @EventHandler
+    public void onForaging(BlockBreakEvent e) {
+        Block block = e.getBlock();
+        if (!this.checkForagingBlock(block)) return;
+        if (block.hasMetadata(foragingBlockIndentifier)) return;
+
+        double base = settings.getForagingExpAmount();
+        double multiplier = this.checkNetherForagingBlock(block) ?
+                settings.getForagingNetherMultiplier() :
+                settings.getForagingBaseMultiplier();
+
+        SkillPlayer sp = SkillPlayerManager.getInstance().fromPlayer(e.getPlayer());
+        sp.getSkillData().getEntry(Skill.FORAGING).gainExp(base * multiplier);
+    }
+
+    private boolean checkForagingBlock(Block block) {
+        Material material = block.getType();
+        return Tag.LOGS.isTagged(material) || Tag.LEAVES.isTagged(material);
+    }
+
+    private boolean checkNetherForagingBlock(Block block) {
+        return Tag.LOGS_THAT_BURN.isTagged(block.getType());
     }
 
     private double getMultiplierForOreRarity(OreMaterial ore) {
