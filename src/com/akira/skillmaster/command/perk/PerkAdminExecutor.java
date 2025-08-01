@@ -98,7 +98,6 @@ public class PerkAdminExecutor extends ImprovedExecutor {
             } else {
                 SkillPlayer sp = SkillPlayerManager.getInstance().fromPlayer(onlinePlayer);
                 sp.getPerkData().set(perk, value);
-                sp.applyPerks();
 
                 this.sendFeedback(sender, onlinePlayer.getName(), perk, value);
             }

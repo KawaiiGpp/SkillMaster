@@ -31,7 +31,7 @@ public class BukkitUtils {
     }
 
     public static void debug(Object object, boolean bc) {
-        if (bc) Bukkit.broadcastMessage("§b[DEBUG] §f"+ object);
+        if (bc) Bukkit.broadcastMessage("§b[DEBUG] §f" + object);
     }
 
     public static void msg(ChatColor color, String message) {

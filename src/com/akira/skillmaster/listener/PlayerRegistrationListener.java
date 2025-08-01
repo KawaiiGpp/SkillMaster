@@ -15,7 +15,6 @@ public class PlayerRegistrationListener implements Listener {
         SkillPlayer sp = new SkillPlayer(p);
 
         this.getManager().register(sp);
-        sp.applyPerks();
     }
 
     @EventHandler

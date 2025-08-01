@@ -20,7 +20,9 @@ public class PerkData {
     public void set(Perk perk, double value) {
         this.checkPerkType(perk);
         Validate.isTrue(value >= 0, "Perk value cannot be lower than 0.");
+
         this.map.put(perk, value);
+        perk.attemptHandleUpdate(profile, value);
     }
 
     public double get(Perk perk) {
