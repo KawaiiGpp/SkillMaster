@@ -12,11 +12,15 @@ public abstract class Manager<T> {
 
     public void register(T t) {
         Validate.isTrue(!set.contains(t), "Value already registered.");
+        Validate.notNull(t, "Value registered cannot be null.");
+
         set.add(t);
     }
 
     protected void unregister(T t) {
         Validate.isTrue(set.contains(t), "Value not registered yet.");
+        Validate.notNull(t, "Value unregistered cannot be null.");
+
         set.remove(t);
     }
 

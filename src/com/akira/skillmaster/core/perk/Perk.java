@@ -6,6 +6,7 @@ import com.akira.skillmaster.core.SkillPlayer;
 import com.akira.skillmaster.core.SkillProfile;
 import com.akira.skillmaster.func.PerkUpdater;
 import com.akira.skillmaster.manager.AttributeTypeManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 
@@ -32,11 +33,12 @@ public class Perk extends AttributeType {
         return updater;
     }
 
-    public void attemptHandleUpdate(SkillProfile profile, double value) {
+    public void attemptHandleUpdate(SkillProfile profile, double value, boolean initMode) {
         if (updater == null) return;
         if (!(profile instanceof SkillPlayer sp)) return;
 
-        updater.onUpdate(sp.getPlayer(), value);
+        if (!initMode) updater.onUpdate(sp.getPlayer(), value);
+        else updater.onUpdate(Bukkit.getPlayer(profile.getUniqueId()), value);
     }
 
     public static AttributeTypeManager<Perk> getManager() {

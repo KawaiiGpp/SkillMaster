@@ -31,10 +31,10 @@ public class SkillProfile {
 
         if (config.hasAnyData(uniqueId)) {
             skillSet.forEach(s -> config.loadSkillEntry(uniqueId, s, skillData.getEntry(s)));
-            perkSet.forEach(p -> perkData.set(p, config.getPerkValue(uniqueId, p)));
+            perkSet.forEach(p -> perkData.set(p, config.getPerkValue(uniqueId, p), true));
         } else {
             skillSet.forEach(s -> skillData.setEntry(s, 1, 0));
-            perkSet.forEach(p -> perkData.set(p, 0));
+            perkSet.forEach(p -> perkData.set(p, 0, true));
         }
     }
 

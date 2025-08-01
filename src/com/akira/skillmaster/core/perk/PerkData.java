@@ -17,12 +17,16 @@ public class PerkData {
         this.initialize();
     }
 
-    public void set(Perk perk, double value) {
+    public void set(Perk perk, double value, boolean initMode) {
         this.checkPerkType(perk);
         Validate.isTrue(value >= 0, "Perk value cannot be lower than 0.");
 
         this.map.put(perk, value);
-        perk.attemptHandleUpdate(profile, value);
+        perk.attemptHandleUpdate(profile, value, initMode);
+    }
+
+    public void set(Perk perk, double value) {
+        this.set(perk, value, false);
     }
 
     public double get(Perk perk) {
