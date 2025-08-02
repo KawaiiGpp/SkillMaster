@@ -29,3 +29,6 @@ perks:
   multiplier_per_strength: 0.01
   defense_scaling_factor: 200
   vanilla_value_per_speed: 0.001
+notification:
+  levelled_up: true
+  exp_gained: true

@@ -37,7 +37,7 @@ public class NumberUtils {
     }
 
     public static String toPercent(double value, double max) {
-        Validate.isTrue(max >= value, "The value cannot be greater than the max level.");
+        Validate.isTrue(max >= value, "The value cannot be greater than the max value.");
         return formatter.format(value / max * 100) + "%";
     }
 

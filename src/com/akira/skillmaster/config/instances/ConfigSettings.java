@@ -181,4 +181,21 @@ public class ConfigSettings extends ConfigFile {
     public void setVanillaValuePerSpeed(double value) {
         config.set("perks.vanilla_value_per_speed", value);
     }
+
+    // === notification ===
+    public boolean shouldSendLevelledupNotification() {
+        return config.getBoolean("notification.levelled_up");
+    }
+
+    public void setSendLevelledupNotification(boolean value) {
+        config.set("notification.levelled_up", value);
+    }
+
+    public boolean shouldSendExpGainedNotification() {
+        return config.getBoolean("notification.exp_gained");
+    }
+
+    public void setSendExpGainedNotification(boolean value) {
+        config.set("notification.exp_gained", value);
+    }
 }

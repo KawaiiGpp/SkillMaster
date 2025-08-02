@@ -6,6 +6,7 @@ import com.akira.skillmaster.core.SkillPlayer;
 import com.akira.skillmaster.core.skill.Skill;
 import com.akira.skillmaster.manager.ConfigManager;
 import com.akira.skillmaster.manager.SkillPlayerManager;
+import com.akira.skillmaster.utils.BukkitUtils;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -84,7 +85,7 @@ public class SkillListener implements Listener {
     }
 
     @EventHandler
-    public void onFurnace(InventoryClickEvent e) {
+    public void onMining(InventoryClickEvent e) {
         if (e.getSlot() != 2) return;
 
         if (!(e.getClickedInventory() instanceof FurnaceInventory)) return;
@@ -144,7 +145,7 @@ public class SkillListener implements Listener {
     }
 
     @EventHandler
-    public void onBreeding(EntityBreedEvent e) {
+    public void onFarming(EntityBreedEvent e) {
         if (!(e.getBreeder() instanceof Player player))
             return;
 
@@ -166,7 +167,8 @@ public class SkillListener implements Listener {
 
     private boolean checkForagingBlock(Block block) {
         Material material = block.getType();
-        return Tag.LOGS.isTagged(material) || Tag.LEAVES.isTagged(material);
+        return Tag.LOGS.isTagged(material) ||
+                (Tag.LEAVES.isTagged(material) && BukkitUtils.random(10));
     }
 
     private boolean checkNetherForagingBlock(Block block) {

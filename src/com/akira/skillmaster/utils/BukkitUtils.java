@@ -5,15 +5,21 @@ import com.akira.skillmaster.base.ImprovedExecutor;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
 public class BukkitUtils {
+    private static final Random random = new Random();
+
     public static void info(String message) {
         msg(ChatColor.GREEN, "[INFO] " + message);
     }
@@ -59,5 +65,19 @@ public class BukkitUtils {
             UUID uuid = Bukkit.getOfflinePlayer(name).getUniqueId();
             scheduler.runTask(plugin, () -> callback.accept(uuid));
         });
+    }
+
+    public static void playSound(Player player, Sound sound, float pitch) {
+        Location location = player.getLocation();
+        player.playSound(location, sound, 1.0F, pitch);
+    }
+
+    public static void playSound(Player player, Sound sound) {
+        playSound(player, sound, 1.0F);
+    }
+
+    public static boolean random(int chance) {
+        Validate.isTrue(chance >= 0 && chance <= 100, "Chance must be from 0 to 100.");
+        return random.nextInt(100) + 1 <= chance;
     }
 }
