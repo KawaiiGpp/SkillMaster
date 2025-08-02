@@ -6,11 +6,13 @@ import com.akira.skillmaster.core.SkillPlayer;
 import com.akira.skillmaster.core.skill.Skill;
 import com.akira.skillmaster.manager.ConfigManager;
 import com.akira.skillmaster.manager.SkillPlayerManager;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
@@ -19,10 +21,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -33,6 +37,11 @@ import java.util.*;
 public class SkillListener implements Listener {
     private final ConfigSettings settings = (ConfigSettings) ConfigManager.getInstance().fromString("settings");
     private final String foragingBlockIndentifier = "skillmaster.built_foraging_block";
+    private final Set<Material> ageableCropMaterials = new HashSet<>();
+
+    public SkillListener() {
+        this.initializeCropMaterials();
+    }
 
     @EventHandler
     public void onCombat(EntityDeathEvent e) {
@@ -69,7 +78,7 @@ public class SkillListener implements Listener {
                 (ore == null || ore.isFurnaceRequired())) return;
 
         double multiplier = ore != null ?
-                this.getMultiplierForOreRarity(ore) :
+                this.getRarityMultiplier(ore) :
                 settings.getMiningBaseMultiplier();
         this.gainMiningExp(player, settings.getMiningExpAmount() * multiplier);
     }
@@ -86,7 +95,7 @@ public class SkillListener implements Listener {
         OreMaterial ore = OreMaterial.fromProduct(item.getType());
         if (ore == null) return;
 
-        double exp = settings.getMiningExpAmount() * this.getMultiplierForOreRarity(ore);
+        double exp = settings.getMiningExpAmount() * this.getRarityMultiplier(ore);
         this.gainMiningExp(player, exp);
     }
 
@@ -113,16 +122,65 @@ public class SkillListener implements Listener {
         sp.getSkillData().getEntry(Skill.FORAGING).gainExp(base * multiplier);
     }
 
+    @EventHandler
+    public void onFarming(BlockBreakEvent e) {
+        Block block = e.getBlock();
+
+        if (!ageableCropMaterials.contains(block.getType())) return;
+        if (!this.checkMaxAgeReached(block)) return;
+
+        this.gainFarmingExp(e.getPlayer(), false);
+    }
+
+    @EventHandler
+    public void onFarming(PlayerInteractEvent e) {
+        Block block = e.getClickedBlock();
+
+        if (block == null) return;
+        if (!block.getType().equals(Material.SWEET_BERRY_BUSH)) return;
+        if (!this.checkMaxAgeReached(block)) return;
+
+        this.gainFarmingExp(e.getPlayer(), false);
+    }
+
+    @EventHandler
+    public void onBreeding(EntityBreedEvent e) {
+        if (!(e.getBreeder() instanceof Player player))
+            return;
+
+        this.gainFarmingExp(player, true);
+    }
+
+    private void initializeCropMaterials() {
+        ageableCropMaterials.add(Material.WHEAT);
+        ageableCropMaterials.add(Material.BEETROOTS);
+        ageableCropMaterials.add(Material.CARROTS);
+        ageableCropMaterials.add(Material.POTATOES);
+        ageableCropMaterials.add(Material.NETHER_WART);
+        ageableCropMaterials.add(Material.COCOA);
+        ageableCropMaterials.add(Material.SWEET_BERRY_BUSH);
+
+        ageableCropMaterials.forEach(material -> Validate.isTrue(material.createBlockData() instanceof Ageable,
+                "Failed initializing. Material " + material.name() + " is not an instance of Ageable."));
+    }
+
     private boolean checkForagingBlock(Block block) {
         Material material = block.getType();
         return Tag.LOGS.isTagged(material) || Tag.LEAVES.isTagged(material);
     }
 
     private boolean checkNetherForagingBlock(Block block) {
-        return Tag.LOGS_THAT_BURN.isTagged(block.getType());
+        return !Tag.LOGS_THAT_BURN.isTagged(block.getType());
     }
 
-    private double getMultiplierForOreRarity(OreMaterial ore) {
+    private boolean checkMaxAgeReached(Block block) {
+        if (!(block.getBlockData() instanceof Ageable ageable))
+            return false;
+
+        return ageable.getAge() == ageable.getMaximumAge();
+    }
+
+    private double getRarityMultiplier(OreMaterial ore) {
         return ore.isRare() ?
                 settings.getMiningRareOreMultiplier() :
                 settings.getMiningCommonOreMultiplier();
@@ -135,6 +193,16 @@ public class SkillListener implements Listener {
                 .getSkillData()
                 .getEntry(Skill.MINING)
                 .gainExp(exp);
+    }
+
+    private void gainFarmingExp(Player player, boolean breeding) {
+        double multiplier = breeding ?
+                settings.getFarmingBreedingMultiplier() :
+                settings.getFarmingBaseMultiplier();
+        double exp = settings.getFarmingExpAmount() * multiplier;
+
+        SkillPlayer sp = SkillPlayerManager.getInstance().fromPlayer(player);
+        sp.getSkillData().getEntry(Skill.FARMING).gainExp(exp);
     }
 
     private static class OreMaterial {

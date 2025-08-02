@@ -78,8 +78,8 @@ public class SkillEntry {
     }
 
     public void gainExp(double exp) {
-        double multiplier = 1 + (settings.getExpBoosterMultiplierPerLevelup() * level);
-        double expGained = exp * multiplier;
+        double levelBooster = settings.getExpBoosterMultiplierPerLevelup() * (level - 1);
+        double expGained = exp * (1 + levelBooster);
         SkillExpGainedEvent event = new SkillExpGainedEvent(profile, expGained);
 
         Bukkit.getPluginManager().callEvent(event);
